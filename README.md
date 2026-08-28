@@ -52,18 +52,80 @@ Sự tách biệt này giúp cải thiện khả năng bảo trì và dễ dàng
 
 Sơ đồ này mô tả luồng thực thi tổng thể của toàn bộ hệ thống.
 
-<p align="center">
-  <img src="docs/images/Color_Sorter_general.svg" alt="Color Sorter - General System State Machine" width="700">
-</p>
+```mermaid
+stateDiagram-v2
+    direction LR
+    %% ÉP CỠ CHỮ TO
+    %%{init: {'themeVariables': {'fontSize': '16px'}}}%%
+    
+    %% Định nghĩa các bảng màu
+    classDef idle fill:#E0E0E0,stroke:#9E9E9E,stroke-width:2px,color:black
+    classDef running fill:#C8E6C9,stroke:#4CAF50,stroke-width:2px,color:black
+    classDef target fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:black
+    
+    [*] --> INIT : Cấp nguồn
+    
+    INIT --> STANDBY : Khởi tạo phần cứng xong
+    
+    STANDBY --> RUNNING : Nhận phím 'S' qua UART<br>(system_start = 1)
+    
+    RUNNING --> STANDBY : Tạm dừng
+    
+    RUNNING --> TARGET_REACHED : Đếm đủ số lượng chỉ tiêu
+    
+    TARGET_REACHED --> STANDBY : Tự động Reset sau 3s<br>(system_start = 0)
+    
+    %% Gán màu cho các khối
+    class INIT, STANDBY idle
+    class RUNNING running
+    class TARGET_REACHED target
 
 ### 5.2 Máy trạng thái logic phân loại
 
 Sơ đồ này tập trung vào logic phân loại bên trong và các trạng thái chấp hành.
 Mỗi khối trạng thái đại diện cho tập hợp các tập lệnh liên quan chịu trách nhiệm cho một hành vi cụ thể (ví dụ: phát hiện vật cản, độ trễ không chặn, điều khiển tay gạt servo).
 
-<p align="center">
-  <img src="docs/images/Color_Sorter_detail.svg" alt="Color Sorter - Detail System State Machine" width="1000">
-</p>
+```mermaid
+flowchart TD
+    %% ÉP CỠ CHỮ TO VÀ GIÃN CÁCH KHỐI
+    %%{init: {'themeVariables': {'fontSize': '16px'}, 'flowchart': {'nodeSpacing': 60, 'rankSpacing': 60}}}%%
+
+    %% Định nghĩa các bảng màu
+    classDef startEnd fill:#E1BEE7,stroke:#8E24AA,stroke-width:2px,color:black
+    classDef process fill:#BBDEFB,stroke:#1976D2,stroke-width:2px,color:black
+    classDef decision fill:#FFE082,stroke:#F57C00,stroke-width:2px,color:black
+    classDef action fill:#C8E6C9,stroke:#388E3C,stroke-width:2px,color:black
+    classDef stop fill:#FFCDD2,stroke:#D32F2F,stroke-width:2px,color:black
+
+    Start(("Vòng lặp Main")):::startEnd --> ReadSensor["Đọc cảm biến màu TCS3200"]:::process
+    
+    ReadSensor --> CheckObject{"Phát hiện màu<br>& Chống dội OK?"}:::decision
+    
+    CheckObject -- "Có (Object = 1)" --> SaveColor["Ghi nhớ Màu (pending_color)<br>Bắt đầu bấm giờ (delay_start)"]:::process
+    CheckObject -- "Không" --> CheckTimer1
+    
+    SaveColor --> CheckTimer1{"Đến mốc thời gian gạt?<br>(Đỏ: 1s, Xanh lá: 2.2s)"}:::decision
+    
+    CheckTimer1 -- "Có" --> ActuateServo["Gạt Servo tương ứng lên 90°<br>Tăng biến đếm màu ++"]:::action
+    ActuateServo --> StartHold["Bắt đầu bấm giờ giữ (hold_start)"]:::process
+    CheckTimer1 -- "Không" --> CheckTimer2
+    
+    StartHold --> CheckTimer2{"Đã giữ đủ 0.5s?"}:::decision
+    
+    CheckTimer2 -- "Có" --> ResetServo["Thu Servo về 0°"]:::action
+    CheckTimer2 -- "Không" --> CheckTarget
+    
+    ResetServo --> CheckTarget
+    
+    CheckTarget{"Biến đếm >= Chỉ tiêu?"}:::decision
+    
+    CheckTarget -- "Chưa đạt" --> Start
+    
+    CheckTarget -- "Đã đạt" --> Buzzer["Còi hú 3.5s<br>(Băng chuyền vẫn đẩy phôi)"]:::stop
+    Buzzer --> StopMotor["Cúp Relay 12V<br>Dừng động cơ"]:::stop
+    StopMotor --> LCD["Hiển thị LCD 'DAT CHI TIEU'<br>Chờ 3 giây"]:::process
+    LCD --> AutoReset["Reset toàn bộ biến đếm về 0<br>system_start = 0"]:::process
+    AutoReset --> End(("Thoát vòng lặp<br>Chờ lệnh mới")):::startEnd
 
 ## 6. Thiết kế ngắt và định thời
 
