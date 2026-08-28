@@ -40,7 +40,7 @@ Phong cách phát triển: Bare-metal (truy cập thanh ghi trực tiếp).
 Sơ đồ nguyên lý dưới đây thể hiện việc kết nối chân giữa STM32, màn hình LCD, các cảm biến, driver động cơ và các servo.
 
 <p align="center">
-  <img src="d:\EMBEDDED_C\Final_project_EMBEDDED_C\docs" alt="Color Sorter - Pinout Schematic" width="700">
+  <img src="docs/schematic.jpg" alt="Color Sorter - Pinout Schematic" width="700">
 </p>
 
 ## 5. Kiến trúc phần mềm
