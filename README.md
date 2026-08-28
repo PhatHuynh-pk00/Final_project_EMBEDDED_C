@@ -1,19 +1,18 @@
 # HỆ THỐNG BĂNG CHUYỀN PHÂN LOẠI MÀU – BARE-METAL STM32
 
-Hệ thống băng chuyền phân loại màu sắc chạy trên nền tảng STM32 theo phương pháp lập trình thanh ghi trực tiếp (Bare-metal), hoàn toàn không sử dụng thư viện HAL hay RTOS.
-Dự án tập trung vào tính định thời tất định (deterministic timing), thiết kế hướng ngắt và máy trạng thái hữu hạn (Finite State Machines) cho logic cảm biến.
+Hệ thống băng chuyền phân loại màu sắc chạy trên nền tảng STM32 theo phương pháp lập trình thanh ghi trực tiếp (Bare-metal).
 
 ## 1. Tổng quan dự án
 
 Dự án này triển khai hệ thống phân loại màu sắc tự động trên vi điều khiển STM32.
-Hệ thống nhận dữ liệu màu RGB từ cảm biến TCS3200, theo dõi phôi đi qua bằng cảm biến hồng ngoại (IR) thông qua ngắt ngoài (EXTI), và điều khiển động cơ DC băng chuyền thông qua driver L298N tích hợp băm xung PWM.
+Hệ thống nhận dữ liệu màu RGB từ cảm biến TCS3200, và điều khiển động cơ DC băng chuyền thông qua driver L298N tích hợp băm xung PWM.
 
 Tương tác người dùng được thực hiện qua giao tiếp UART để cài đặt chỉ tiêu số lượng, trong khi hệ thống liên tục cập nhật số đếm lên màn hình LCD1602 giao tiếp I2C.
 Khi đạt đủ số lượng chỉ tiêu phân loại, một relay phần cứng sẽ tự động cắt nguồn cấp 12V cho driver động cơ như một lớp dừng bảo vệ an toàn độc lập.
 
 ## 2. Mục tiêu học tập
 
-- Thực hành lập trình Bare-metal trên STM32 không dùng thư viện HAL hay RTOS.
+- Thực hành lập trình Bare-metal trên STM32.
 - Hiểu sâu về các ngoại vi EXTI, I2C, PWM (TIMERS), UART và SysTick ở cấp độ thanh ghi.
 - Áp dụng máy trạng thái hữu hạn để cấu trúc hóa logic điều khiển cảm biến nhúng.
 - Thiết kế vòng lặp chính (main loop) không chặn (non-blocking) sử dụng các sự kiện theo thời gian.
@@ -23,17 +22,17 @@ Khi đạt đủ số lượng chỉ tiêu phân loại, một relay phần cứ
 
 Vi điều khiển: STM32F103C8T6.
 
-Xung nhịp: Thạch anh nội 8 MHz (mặc định, chế độ ổn định).
+Xung nhịp: Thạch anh nội 8 MHz.
 
 Hiển thị: Màn hình LCD1602 kèm module I2C PCF8574.
 
-Thiết bị đầu vào: Cảm biến màu TCS3200 và cảm biến tiệm cận IR.
+Thiết bị đầu vào: Cảm biến màu TCS3200.
 
-Thiết bị đầu ra: 2x Động cơ Servo SG90/MG996R, Driver động cơ L298N, Relay 5V, Còi Buzzer.
+Thiết bị đầu ra: 2x Động cơ Servo SG90, Driver động cơ L298N, Relay 5V, Còi Buzzer.
 
 Công cụ nạp: ST-Link.
 
-Phong cách phát triển: Bare-metal (truy cập thanh ghi trực tiếp).
+Phong cách phát triển: Bare-metal.
 
 ## 4. Sơ đồ chân và nguyên lý
 
@@ -91,32 +90,26 @@ Mạch nạp: ST-Link.
 
 Không sử dụng thư viện của hãng hay trình sinh mã nguồn tự động.
 
-## 9. Tại sao lại chọn Bare-Metal?
+## 9. Lý do chọn Bare-Metal?
 
-Dự án này chủ yếu phục vụ mục đích học tập, do đó nhằm các mục tiêu:
-- Hiểu sâu các ngoại vi của STM32 ở cấp độ thanh ghi.
-- Nắm quyền kiểm soát hoàn toàn về mặt thời gian và luồng thực thi.
-- Tránh các lớp trừu tượng ẩn và những chi phí bộ nhớ không cần thiết.
-- Xây dựng nền tảng vững chắc cho việc gỡ lỗi hệ thống nhúng.
+Dự án này chủ yếu phục vụ mục đích học tập, giúp hiểu sâu cách cấu hình và điều khiển các ngoại vi ở cấp độ thanh ghi.
 
 ## 10. Đánh đổi hiệu năng và thời gian
 
 Hệ thống ưu tiên tính ổn định và định thời chính xác cho việc phân loại sản phẩm.
 Vì cơ cấu phân loại dựa vào độ trễ thời gian không chặn chính xác thay vì cảm biến vị trí độc lập tại mỗi máng, hệ thống có giới hạn cơ khí về tốc độ nạp phôi.
 Các sản phẩm phải được đặt lên băng chuyền với khoảng cách tối thiểu từ 1.5 đến 2 giây. Nạp sản phẩm quá sát nhau sẽ khiến biến lưu trữ trạng thái bị ghi đè, dẫn đến việc servo không gạt kịp.
-Hành vi này minh họa sự đánh đổi thực tế giữa sự đơn giản phần cứng (ít cảm biến hơn) và tổng thông lượng hệ thống trong thiết kế bare-metal.
 
 ## 11. Hạn chế và hướng phát triển trong tương lai
 
 Dự án này chủ yếu mang tính chất học tập nên vẫn còn một số hạn chế:
-- Chỉ tiêu số lượng được cài đặt cứng hoặc yêu cầu nhập qua UART mỗi khi reset.
-- Chưa sử dụng các chế độ tiết kiệm năng lượng giữa các chu kỳ xử lý.
-- Hệ thống chưa tích hợp cơ cấu cấp phôi tự động cơ khí.
+- Thiếu sự ổn định do thiết kế cơ khí chưa chắc chắn
+- Có thể phân loại sai do cơ chế cài đặt thời gian gạt cố định
+- Tốc độ băng chuyền chưa ổn định
 
 Các hướng cải tiến và phát triển trong tương lai bao gồm:
-- Tái cấu trúc mã nguồn để tách biệt tốt hơn giữa tầng trừu tượng phần cứng và logic phân loại.
-- Tích hợp bộ nhớ EEPROM ngoài để lưu trữ chỉ tiêu khi mất nguồn.
-- Chuyển đổi từ lập trình nguyên lý gốc sang các framework công nghiệp chuyên nghiệp bằng cách tích hợp ROS 2 để điều phối hệ thống nâng cao.
+- Thay thế ngoại vị nhận diện phôi bằng camera AI.
+- Điều chỉnh cơ cấu cơ khí để chắc chắn hơn.
 
 ## 12. Tác giả
 
