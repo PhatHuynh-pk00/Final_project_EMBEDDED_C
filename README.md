@@ -1,125 +1,123 @@
-# COLOR SORTER CONVEYOR – Bare-Metal STM32
+# HỆ THỐNG BĂNG CHUYỀN PHÂN LOẠI MÀU – BARE-METAL STM32
 
-A bare-metal color sorting conveyor system implemented on STM32 using direct register-level programming (no HAL, no RTOS).
-This project focuses on deterministic timing, interrupt-driven design, and finite state machines for sensor logic.
+Hệ thống băng chuyền phân loại màu sắc chạy trên nền tảng STM32 theo phương pháp lập trình thanh ghi trực tiếp (Bare-metal), hoàn toàn không sử dụng thư viện HAL hay RTOS.
+Dự án tập trung vào tính định thời tất định (deterministic timing), thiết kế hướng ngắt và máy trạng thái hữu hạn (Finite State Machines) cho logic cảm biến.
 
-## 1. Project Overview
+## 1. Tổng quan dự án
 
-This project implements a bare-metal color sorting system on STM32.
-The system receives RGB color data from a TCS3200 sensor, tracks passing objects via an IR sensor using external interrupts (EXTI), and controls a DC motor conveyor via a PWM-driven L298N driver.
+Dự án này triển khai hệ thống phân loại màu sắc tự động trên vi điều khiển STM32.
+Hệ thống nhận dữ liệu màu RGB từ cảm biến TCS3200, theo dõi phôi đi qua bằng cảm biến hồng ngoại (IR) thông qua ngắt ngoài (EXTI), và điều khiển động cơ DC băng chuyền thông qua driver L298N tích hợp băm xung PWM.
 
-User interaction is handled via UART to set target quotas, while the system continuously updates the current count on an I2C LCD1602 display.
-When the sorting quota is met, a hardware relay cuts the 12V power supply to the motor driver as an independent safety stop.
+Tương tác người dùng được thực hiện qua giao tiếp UART để cài đặt chỉ tiêu số lượng, trong khi hệ thống liên tục cập nhật số đếm lên màn hình LCD1602 giao tiếp I2C.
+Khi đạt đủ số lượng chỉ tiêu phân loại, một relay phần cứng sẽ tự động cắt nguồn cấp 12V cho driver động cơ như một lớp dừng bảo vệ an toàn độc lập.
 
-## 2. Learning Objectives
+## 2. Mục tiêu học tập
 
-- Practice bare-metal programming on STM32 without using HAL or RTOS.
-- Understand EXTI, I2C, PWM (TIMERS), UART, and SysTick at the register level.
-- Apply finite state machines to structure embedded sensor logic.
-- Design a non-blocking main loop using time-driven events.
-- Improve documentation and system-level thinking for embedded projects.
+- Thực hành lập trình Bare-metal trên STM32 không dùng thư viện HAL hay RTOS.
+- Hiểu sâu về các ngoại vi EXTI, I2C, PWM (TIMERS), UART và SysTick ở cấp độ thanh ghi.
+- Áp dụng máy trạng thái hữu hạn để cấu trúc hóa logic điều khiển cảm biến nhúng.
+- Thiết kế vòng lặp chính (main loop) không chặn (non-blocking) sử dụng các sự kiện theo thời gian.
+- Nâng cao kỹ năng viết tài liệu và tư duy hệ thống cho các dự án nhúng.
 
-## 3. Hardware Overview
+## 3. Tổng quan phần cứng
 
-MCU: STM32F103C8T6.
+Vi điều khiển: STM32F103C8T6.
 
-Clock: 8 MHz internal clock (default, stable mode).
+Xung nhịp: Thạch anh nội 8 MHz (mặc định, chế độ ổn định).
 
-Display: LCD1602 with PCF8574 (I2C).
+Hiển thị: Màn hình LCD1602 kèm module I2C PCF8574.
 
-Input: TCS3200 Color Sensor and IR Proximity Sensor.
+Thiết bị đầu vào: Cảm biến màu TCS3200 và cảm biến tiệm cận IR.
 
-Output: 2x SG90/MG996R Servos, L298N Motor Driver, 5V Relay, Buzzer.
+Thiết bị đầu ra: 2x Động cơ Servo SG90/MG996R, Driver động cơ L298N, Relay 5V, Còi Buzzer.
 
-Programming: ST-Link.
+Công cụ nạp: ST-Link.
 
-Development style: Bare metal (direct register access).
+Phong cách phát triển: Bare-metal (truy cập thanh ghi trực tiếp).
 
-## 4. Pinout Schematic
+## 4. Sơ đồ chân và nguyên lý
 
-The following schematic shows the pin mapping between the STM32, LCD display, sensors, motor driver, and servos.
+Sơ đồ nguyên lý dưới đây thể hiện việc kết nối chân giữa STM32, màn hình LCD, các cảm biến, driver động cơ và các servo.
 
 <p align="center">
-  <img src="docs/images/Color_Sorter_schematic.svg" alt="Color Sorter - Pinout Schematic" width="700">
+  <img src="d:\EMBEDDED_C\Final_project_EMBEDDED_C\docs" alt="Color Sorter - Pinout Schematic" width="700">
 </p>
 
-## 5. Software Architecture
+## 5. Kiến trúc phần mềm
 
-The software is structured around a non-blocking main loop and multiple state machines.
-Timing-critical tasks are driven by timer interrupts, while system logic remains deterministic and easy to follow.
-This separation improves maintainability and makes system behavior easier to reason about.
+Phần mềm được xây dựng dựa trên vòng lặp chính không chặn và nhiều máy trạng thái.
+Các tác vụ yêu cầu thời gian chính xác được điều khiển bởi ngắt timer, trong khi logic hệ thống duy trì sự ổn định và dễ theo dõi.
+Sự tách biệt này giúp cải thiện khả năng bảo trì và dễ dàng phân tích hành vi hệ thống.
 
-### 5.1 Overall System State Machine
+### 5.1 Máy trạng thái tổng quan hệ thống
 
-This diagram describes the overall execution flow of the system.
+Sơ đồ này mô tả luồng thực thi tổng thể của toàn bộ hệ thống.
 
 <p align="center">
   <img src="docs/images/Color_Sorter_general.svg" alt="Color Sorter - General System State Machine" width="700">
 </p>
 
-### 5.2 Sorter Logic State Machine
+### 5.2 Máy trạng thái logic phân loại
 
-This diagram focuses on the internal sorting logic and actuation states.
-Each state block represents a group of related instructions responsible for a specific behavior (e.g. object detection, non-blocking delay, servo gating).
+Sơ đồ này tập trung vào logic phân loại bên trong và các trạng thái chấp hành.
+Mỗi khối trạng thái đại diện cho tập hợp các tập lệnh liên quan chịu trách nhiệm cho một hành vi cụ thể (ví dụ: phát hiện vật cản, độ trễ không chặn, điều khiển tay gạt servo).
 
 <p align="center">
   <img src="docs/images/Color_Sorter_detail.svg" alt="Color Sorter - Detail System State Machine" width="1000">
 </p>
 
-## 6. Timing and Interrupt Design
+## 6. Thiết kế ngắt và định thời
 
-A hardware SysTick interrupt is used as the system time base (1ms tick).
-Sensor inputs (TCS3200) are sampled periodically (every 20ms) via a state machine to ensure responsive and real-time control.
-Product counting is handled strictly via EXTI hardware interrupts for immediate response.
-The main loop remains non-blocking and reacts to state changes.
-Servo gating delays (1000ms for Red, 2200ms for Green) and hold times (500ms) are decoupled from the main motor control.
-This approach ensures predictable timing and avoids blocking delays.
+Ngắt phần cứng SysTick được sử dụng làm cơ sở thời gian cho hệ thống (chu kỳ ngắt 1ms).
+Tín hiệu cảm biến (TCS3200) được lấy mẫu định kỳ (mỗi 20ms) thông qua máy trạng thái để đảm bảo điều khiển thời gian thực và phản hồi nhanh.
+Việc đếm sản phẩm được xử lý hoàn toàn bằng ngắt phần cứng EXTI để có phản hồi tức thì.
+Vòng lặp chính duy trì trạng thái không chặn và phản hồi theo các thay đổi trạng thái.
+Thời gian chờ gạt servo (1000ms cho Đỏ, 2200ms cho Xanh lá) và thời gian giữ cần gạt (500ms) được tách biệt khỏi bộ điều khiển động cơ chính.
+Phương pháp này đảm bảo thời gian dự đoán được và tránh các độ trễ gây treo hệ thống.
 
-## 7. Demo Video
+## 7. Video Demo
 
-A short demo video showing the sorting process and target completion:
+Video ngắn ghi lại quá trình phân loại và hoàn thành chỉ tiêu:
 
-▶️ [Color Sorter Conveyor - Demo Video](Link_YouTube_Cua_Ban_Vao_Day)
+▶️ [Color Sorter Conveyor - Demo Video](https://www.youtube.com/watch?v=gpbj189OsZc)
 
-## 8. Build and Flash
+## 8. Biên dịch và nạp code
 
-Toolchain: arm-none-eabi-gcc.
+Bộ công cụ biên dịch (Toolchain): arm-none-eabi-gcc.
 
-Build system: CMake.
+Hệ thống build: CMake.
 
-Programmer: ST-Link.
+Mạch nạp: ST-Link.
 
-No vendor libraries or code generators are used.
+Không sử dụng thư viện của hãng hay trình sinh mã nguồn tự động.
 
-## 9. Why Bare Metal?
+## 9. Tại sao lại chọn Bare-Metal?
 
-This project intentionally avoids HAL and RTOS in order to:
-- Understand STM32 peripherals at register level.
-- Gain full control over timing and execution flow.
-- Avoid hidden abstractions and unnecessary overhead.
-- Build a solid foundation for embedded system debugging.
+Dự án này chủ yếu phục vụ mục đích học tập, do đó nhằm các mục tiêu:
+- Hiểu sâu các ngoại vi của STM32 ở cấp độ thanh ghi.
+- Nắm quyền kiểm soát hoàn toàn về mặt thời gian và luồng thực thi.
+- Tránh các lớp trừu tượng ẩn và những chi phí bộ nhớ không cần thiết.
+- Xây dựng nền tảng vững chắc cho việc gỡ lỗi hệ thống nhúng.
 
-## 10. Performance & Timing Trade-offs
+## 10. Đánh đổi hiệu năng và thời gian
 
-The system prioritizes deterministic behavior for object sorting.
-Because the sorting mechanism relies on precise non-blocking time delays rather than independent position sensors at each sorting bin, there is a mechanical constraint on the feed rate.
-Objects must be placed on the conveyor with a minimum spacing of 1.5 to 2 seconds. Feeding objects too closely causes the state machine to overwrite the pending color variable, leading to missed servo actuations.
-This behavior illustrates a practical trade-off between hardware simplicity (fewer sensors) and overall system throughput in a bare-metal design.
+Hệ thống ưu tiên tính ổn định và định thời chính xác cho việc phân loại sản phẩm.
+Vì cơ cấu phân loại dựa vào độ trễ thời gian không chặn chính xác thay vì cảm biến vị trí độc lập tại mỗi máng, hệ thống có giới hạn cơ khí về tốc độ nạp phôi.
+Các sản phẩm phải được đặt lên băng chuyền với khoảng cách tối thiểu từ 1.5 đến 2 giây. Nạp sản phẩm quá sát nhau sẽ khiến biến lưu trữ trạng thái bị ghi đè, dẫn đến việc servo không gạt kịp.
+Hành vi này minh họa sự đánh đổi thực tế giữa sự đơn giản phần cứng (ít cảm biến hơn) và tổng thông lượng hệ thống trong thiết kế bare-metal.
 
-## 11. Limitations and Future Improvements
+## 11. Hạn chế và hướng phát triển trong tương lai
 
-This project is primarily intended as a learning exercise and therefore has several limitations:
-- Target quotas are hardcoded or require manual UART input upon reset.
-- No power-saving modes are used between processing ticks.
-- The system lacks a physical automated feeder mechanism.
+Dự án này chủ yếu mang tính chất học tập nên vẫn còn một số hạn chế:
+- Chỉ tiêu số lượng được cài đặt cứng hoặc yêu cầu nhập qua UART mỗi khi reset.
+- Chưa sử dụng các chế độ tiết kiệm năng lượng giữa các chu kỳ xử lý.
+- Hệ thống chưa tích hợp cơ cấu cấp phôi tự động cơ khí.
 
-Planned improvements and learning directions include:
-- Refactoring the code to better separate hardware abstraction and sorting logic.
-- Adding non-volatile EEPROM storage to remember quotas after power loss.
-- Transitioning from First Principles bare-metal programming to professional industry frameworks by integrating ROS 2 for advanced system coordination.
+Các hướng cải tiến và phát triển trong tương lai bao gồm:
+- Tái cấu trúc mã nguồn để tách biệt tốt hơn giữa tầng trừu tượng phần cứng và logic phân loại.
+- Tích hợp bộ nhớ EEPROM ngoài để lưu trữ chỉ tiêu khi mất nguồn.
+- Chuyển đổi từ lập trình nguyên lý gốc sang các framework công nghiệp chuyên nghiệp bằng cách tích hợp ROS 2 để điều phối hệ thống nâng cao.
 
-## 12. Author
+## 12. Tác giả
 
-Author: Huỳnh Đức Phát.
-Author: Hoàng Anh.
-Author: Vũ Thành Đạt.
+Tác giả: Huỳnh Đức Phát, Vũ Thành Đạt, Hoàng Anh
