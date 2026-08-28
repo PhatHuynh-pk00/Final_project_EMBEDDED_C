@@ -75,31 +75,31 @@ flowchart TB
 
     Start(( )):::startNode --> INIT
 
-    INIT[<b>Init</b><hr>System Clock 72MHz<br>GPIO, EXTI, TIM, I2C, UART]:::initBlock
+    INIT["<b>Init</b><hr>System Clock 72MHz<br>GPIO, EXTI, TIM, I2C, UART"]:::initBlock
 
     %% KHU VỰC VÒNG LẶP CHÍNH
     subgraph MainLoopLayer ["Main Loop Layer (Time-driven)"]
         direction TB
-        MAIN[<b>while (1)</b><hr>SYSTICK_TICK 1ms <i>(SysTick)</i><br>READ_SENSOR <i>(TCS3200)</i><br>UPDATE_LCD <i>(I2C)</i>]:::mainBlock
+        MAIN["<b>while (1)</b><hr>SYSTICK_TICK 1ms <i>(SysTick)</i><br>READ_SENSOR <i>(TCS3200)</i><br>UPDATE_LCD <i>(I2C)</i>"]:::mainBlock
     end
 
     %% KHU VỰC TRẠNG THÁI BĂNG CHUYỀN
     subgraph StateLayer ["Sorter State Layer (Finite State Machine)"]
         direction TB
-        STANDBY[<b>STATE_STANDBY</b><hr>MOTOR_OFF <i>(L298N)</i><br>RELAY_ON <i>(12V Active)</i><br>SERVOS_RESET <i>(PWM)</i>]:::stateBlock
+        STANDBY["<b>STATE_STANDBY</b><hr>MOTOR_OFF <i>(L298N)</i><br>RELAY_ON <i>(12V Active)</i><br>SERVOS_RESET <i>(PWM)</i>"]:::stateBlock
         
-        RUNNING[<b>STATE_RUNNING</b><hr>MOTOR_ON <i>(L298N)</i><br>CHECK_COLOR_PENDING<br>WAIT_FOR_OBJECT]:::stateBlock
+        RUNNING["<b>STATE_RUNNING</b><hr>MOTOR_ON <i>(L298N)</i><br>CHECK_COLOR_PENDING<br>WAIT_FOR_OBJECT"]:::stateBlock
         
-        SORTING[<b>STATE_ACTUATE</b><hr>DELAY_1s_OR_2.2s<br>SERVO_SWEEP_90° <i>(PWM)</i><br>HOLD_0.5s<br>SERVO_RESET_0°]:::stateBlock
+        SORTING["<b>STATE_ACTUATE</b><hr>DELAY_1s_OR_2.2s<br>SERVO_SWEEP_90° <i>(PWM)</i><br>HOLD_0.5s<br>SERVO_RESET_0°"]:::stateBlock
         
-        DONE[<b>STATE_TARGET_REACHED</b><hr>RELAY_OFF <i>(Cut 12V)</i><br>BUZZER_ON<br>LCD_SHOW_DONE<br>DELAY_3s]:::stateBlock
+        DONE["<b>STATE_TARGET_REACHED</b><hr>RELAY_OFF <i>(Cut 12V)</i><br>BUZZER_ON<br>LCD_SHOW_DONE<br>DELAY_3s"]:::stateBlock
     end
 
     %% KHU VỰC NGẮT VÀ DỊCH VỤ CHẠY NGẦM
     subgraph ServiceLayer ["Side Services Layer (Interrupts)"]
         direction TB
-        UART_RX[<b>UART_RX_ISR</b> <i>(Interrupt)</i><hr>READ_START_COMMAND<br>SET_QUOTA_LIMIT]:::isrBlock
-        IR_EXTI[<b>IR_SENSOR_EXTI</b> <i>(Interrupt)</i><hr>INCREMENT_PRODUCT_COUNT<br>CHECK_TARGET_QUOTA]:::isrBlock
+        UART_RX["<b>UART_RX_ISR</b> <i>(Interrupt)</i><hr>READ_START_COMMAND<br>SET_QUOTA_LIMIT"]:::isrBlock
+        IR_EXTI["<b>IR_SENSOR_EXTI</b> <i>(Interrupt)</i><hr>INCREMENT_PRODUCT_COUNT<br>CHECK_TARGET_QUOTA"]:::isrBlock
     end
 
     %% LUỒNG KHỞI TẠO
