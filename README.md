@@ -52,7 +52,6 @@ Sự tách biệt này giúp cải thiện khả năng bảo trì và dễ dàng
 
 Sơ đồ này mô tả luồng thực thi tổng thể của toàn bộ hệ thống.
 
-```mermaid
 stateDiagram-v2
     direction LR
     %% ÉP CỠ CHỮ TO
@@ -85,7 +84,6 @@ stateDiagram-v2
 Sơ đồ này tập trung vào logic phân loại bên trong và các trạng thái chấp hành.
 Mỗi khối trạng thái đại diện cho tập hợp các tập lệnh liên quan chịu trách nhiệm cho một hành vi cụ thể (ví dụ: phát hiện vật cản, độ trễ không chặn, điều khiển tay gạt servo).
 
-```mermaid
 flowchart TD
     %% ÉP CỠ CHỮ TO VÀ GIÃN CÁCH KHỐI
     %%{init: {'themeVariables': {'fontSize': '16px'}, 'flowchart': {'nodeSpacing': 60, 'rankSpacing': 60}}}%%
