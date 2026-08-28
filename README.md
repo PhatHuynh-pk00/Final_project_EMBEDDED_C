@@ -60,7 +60,7 @@ Sơ đồ này mô tả luồng thực thi tổng thể của toàn bộ hệ th
 
 Sơ đồ này tập trung vào logic phân loại bên trong và các trạng thái chấp hành.
 Mỗi khối trạng thái đại diện cho tập hợp các tập lệnh liên quan chịu trách nhiệm cho một hành vi cụ thể (ví dụ: phát hiện vật cản, độ trễ không chặn, điều khiển tay gạt servo).
-
+```mermaid
 flowchart TB
     %% Cấu hình ép kích cỡ và khoảng cách
     %%{init: {'themeVariables': {'fontSize': '14px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50}}}%%
@@ -128,7 +128,7 @@ flowchart TB
     style MainLoopLayer fill:none,stroke:#FF1493,stroke-width:2px,stroke-dasharray: 5 5,color:#FF1493
     style StateLayer fill:none,stroke:#00FF00,stroke-width:2px,stroke-dasharray: 5 5,color:#00FF00
     style ServiceLayer fill:none,stroke:#00FFFF,stroke-width:2px,stroke-dasharray: 5 5,color:#00FFFF
-
+```
 ## 6. Thiết kế ngắt và định thời
 
 Ngắt phần cứng SysTick được sử dụng làm cơ sở thời gian cho hệ thống (chu kỳ ngắt 1ms).
