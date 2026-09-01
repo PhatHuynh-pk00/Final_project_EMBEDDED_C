@@ -41,7 +41,24 @@ Sơ đồ nguyên lý dưới đây thể hiện việc kết nối chân giữa
 <p align="center">
   <img src="docs/schematic.jpg" alt="Color Sorter - Pinout Schematic" width="700">
 </p>
-
+| Chân     | Chức năng                           | Ngoại vi       |
+|----------|-------------------------------------|----------------|
+| PA0, PA1 | Encoder băng chuyền (đếm xung)      | Input floating |
+| PA2      | TCS3200 – S2 (chọn bộ lọc màu)      | GPIO Output    |
+| PA3      | TCS3200 – S3 (chọn bộ lọc màu)      | GPIO Output    |
+| PA4      | TCS3200 – OUT (tần số màu)          | Input + EXTI4  |
+| PA6      | Servo 1 (gạt màu Đỏ)                | TIM3_CH1 PWM   |
+| PA7      | Servo 2 (gạt màu Xanh lá)           | TIM3_CH2 PWM   |
+| PA9      | UART1 TX                            | USART1         |
+| PA10     | UART1 RX                            | USART1         |
+| PA11     | PWM tốc độ động cơ (ENA → L298N)    | Timer AF PWM   |
+| PB0      | L298N – IN1 (chiều động cơ)         | GPIO Output    |
+| PB1      | L298N – IN2 (chiều động cơ)         | GPIO Output    |
+| PB6      | I2C1 SCL (LCD1602)                  | I2C            |
+| PB7      | I2C1 SDA (LCD1602)                  | I2C            |
+| PB10     | Relay 5V (cắt nguồn 12V)            | GPIO Output    |
+| PB11     | Buzzer                              | GPIO Output    |
+| PC13     | LED báo hiệu on-board               | GPIO Output    |
 ## 5. Kiến trúc phần mềm
 
 Phần mềm được xây dựng dựa trên vòng lặp chính không chặn và nhiều máy trạng thái.
