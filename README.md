@@ -41,6 +41,7 @@ Sơ đồ nguyên lý dưới đây thể hiện việc kết nối chân giữa
 <p align="center">
   <img src="docs/schematic.jpg" alt="Color Sorter - Pinout Schematic" width="700">
 </p>
+
 | Chân     | Chức năng                           | Ngoại vi       |
 |----------|-------------------------------------|----------------|
 | PA0, PA1 | Encoder băng chuyền (đếm xung)      | Input floating |
