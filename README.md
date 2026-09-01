@@ -59,6 +59,7 @@ Sơ đồ nguyên lý dưới đây thể hiện việc kết nối chân giữa
 | PB10     | Relay 5V (cắt nguồn 12V)            | GPIO Output    |
 | PB11     | Buzzer                              | GPIO Output    |
 | PC13     | LED báo hiệu on-board               | GPIO Output    |
+
 ## 5. Kiến trúc phần mềm
 
 Phần mềm được xây dựng dựa trên vòng lặp chính không chặn và nhiều máy trạng thái.
